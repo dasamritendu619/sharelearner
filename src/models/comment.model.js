@@ -1,5 +1,5 @@
-import { text } from "express";
 import mongoose from "mongoose";
+import mongooseAggregatePaginate from "mongoose-aggregate-paginate-v2";
 
 const commentSchema = new mongoose.Schema({
 
@@ -18,8 +18,11 @@ const commentSchema = new mongoose.Schema({
         ref: 'Post',
         required: true
     },
-},{
-    timestamps: true    
+}, {
+    timestamps: true
 });
+
+
+commentSchema.plugin(mongooseAggregatePaginate);
 
 export const Comment = mongoose.model('Comment', commentSchema);
