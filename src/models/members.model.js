@@ -18,7 +18,8 @@ const memberSchema = new mongoose.Schema({
         required: true
     }
 
-}{
+},
+{
     timestamps: true
 });
 memberSchema.plugin(mongooseAggregatePaginate);
