@@ -12,6 +12,8 @@ const savedSchema = new mongoose.Schema({
         ref: 'User',
         required: true
     }
+},{
+    timestamps: true
 });
 savedSchema.plugin(mongooseAggregatePaginate);
 export const Saved = mongoose.model('Saved', savedSchema);
