@@ -21,7 +21,8 @@ const groupSchema = new mongoose.Schema({
 },
     {
         timestamps: true
-    });
+});
 
 groupSchema.plugin(mongooseAggregatePaginate);
+
 export const Group = mongoose.model('Group', groupSchema);

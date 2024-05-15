@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import mongooseAggregatePaginate from "mongoose-aggregate-paginate-v2";
+
 const likesSchema = new mongoose.Schema({
     post: {
         type: mongoose.Schema.Types.ObjectId,
@@ -17,10 +18,9 @@ const likesSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Reply'
     },
-
-
 }, {
     timestamps: true
 });
+
 likesSchema.plugin(mongooseAggregatePaginate);
 export const Likes = mongoose.model('Likes', likesSchema);

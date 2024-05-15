@@ -14,9 +14,10 @@ const groupSettingsSchema = new mongoose.Schema({
     },
     onlyAdminCanEditGroupSettings: {
         type: Boolean,
-        default: false
+        default: true
     },
 
 });
+
 groupSettingsSchema.plugin(mongooseAggregatePaginate);
 export const GroupSettings = mongoose.model('GroupSettings', groupSettingsSchema);

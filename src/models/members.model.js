@@ -19,8 +19,9 @@ const memberSchema = new mongoose.Schema({
     }
 
 },
-{
-    timestamps: true
-});
+    {
+        timestamps: true
+    });
+
 memberSchema.plugin(mongooseAggregatePaginate);
 export const Member = mongoose.model('Member', memberSchema);

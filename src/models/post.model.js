@@ -12,17 +12,22 @@ const postSchema = new mongoose.Schema({
         default: "photo"
     },
     views: {
-        type: Number
+        type: Number,
+        default: 0
     },
     author: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
-        required:true
+        required: true
     },
     visibility: {
         type: String,
         enum: ["public", "private", "friends"],
         default: "public"
+    },
+    forkedFrom: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Post"
     },
     assetURL: {
         type: String
@@ -34,4 +39,4 @@ const postSchema = new mongoose.Schema({
 
 postSchema.plugin(mongooseAggregatePaginate);
 
- export const Post = mongoose.model('Post', postSchema);
+export const Post = mongoose.model('Post', postSchema);
