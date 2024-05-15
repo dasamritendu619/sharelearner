@@ -1,40 +1,35 @@
-import { v2 as cloudinary } from "cloudinary";
+import {v2 as cloudinary} from 'cloudinary';
 import fs from 'fs';
-import { 
-    CLOUDINARY_CLOUD_NAME, 
-    CLOUDINARY_API_KEY, 
-    CLOUDINARY_API_SECRET } 
-    from '../constants.js';
-
-cloudinary.config({
-    cloud_name: CLOUDINARY_CLOUD_NAME,
-    api_key: CLOUDINARY_API_KEY,
-    api_secret: CLOUDINARY_API_SECRET,
-    secure:true
+          
+cloudinary.config({ 
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME, 
+  api_key: process.env.CLOUDINARY_API_KEY, 
+  api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
-
-/////////////////////////
-// Uploads an image file
-/////////////////////////
-const uploadFileOnCloudinary = async (imagePath) => {
-
+const uploadOnCloudinary = async (filePath) => {
     try {
-      // Upload the image
-      const result = await cloudinary.uploader.upload(filePath,{resource_type:"auto",folder:"/sharelerner"});
-      fs.unlinkSync(imagePath);
-      return result;
+        if (!filePath) return null;
+        // Upload image on cloudinary
+        const responce = await cloudinary.uploader.upload(filePath,{resource_type:"auto",folder:"/codeweb"})
+        // Remove image from local storage
+        fs.unlinkSync(filePath);
+        return responce;
     } catch (error) {
-      console.error(error);
-      return null;
-    }
-};
-const deleteFileOnCloudinary=async(public_id)=>{
-    try{
-        const result= await cloudinary.uploader.destroy(public_id);
-        return true;
-    }catch(err){
-        return false;
+        // Remove image from local storage
+        fs.unlinkSync(filePath);
+        return null;
     }
 }
-export {uploadFileOnCloudinary,deleteFileOnCloudinary };
+
+const deleteFromCloudinary = async (public_id) => {
+  try {
+    // Delete image from cloudinary
+    const responce = await cloudinary.uploader.destroy(public_id)
+    return responce;
+  } catch (error) {
+    return null;
+  }
+}
+
+export {uploadOnCloudinary,deleteFromCloudinary}
