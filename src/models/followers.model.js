@@ -13,7 +13,7 @@ const followerSchema = new mongoose.Schema({
         required: true
     },
 }, {
-    timestraps: true
+    timestamps: true
 });
 
 followerSchema.plugin(mongooseAggregatePaginate);

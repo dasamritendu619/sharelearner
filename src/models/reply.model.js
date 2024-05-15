@@ -17,8 +17,6 @@ comment: {
     ref: 'Comment',
     required: true
 },
-}, {
-
 });
 replySchema.plugin(mongooseAggregatePaginate);
 
