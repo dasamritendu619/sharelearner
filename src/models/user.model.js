@@ -29,9 +29,11 @@ const userSchema = new mongoose.Schema({
         required: [true, "password is required"],
         minLength: 8,
     },
-    refreshToken: {
-        type: String
-    },
+    refreshToken: [
+        {
+            type: String,
+        }
+    ],
     dob: {
         type: Date,
     },
@@ -65,6 +67,22 @@ const userSchema = new mongoose.Schema({
             type: String
         }
     ],
+    verifyEmailOTP: {
+        type: String
+    },
+    verifyEmailExpires: {
+        type: Date
+    },
+    isVerified: {
+        type: Boolean,
+        default: false
+    },
+    resetPasswordOTP: {
+        type: String
+    },
+    resetPasswordExpires: {
+        type: Date
+    },
 }, {
     timestamps: true
 });
