@@ -1,4 +1,4 @@
-import {ApiResponce} from "../utils/ApiResponce.js"
+import {ApiResponce} from "../utils/ApiResponse.js"
 
 const errorHandler = (err, req, res, next) => {
     res.status(err.statusCode || 500)
