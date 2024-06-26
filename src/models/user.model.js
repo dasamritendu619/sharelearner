@@ -67,10 +67,10 @@ const userSchema = new mongoose.Schema({
             type: String
         }
     ],
-    verifyEmailOTP: {
+    loginOTP: {
         type: String
     },
-    verifyEmailExpires: {
+    loginExpires: {
         type: Date
     },
     isVerified: {
@@ -125,4 +125,4 @@ userSchema.methods.generateRefreshToken = function () {
 }
 
 userSchema.plugin(mongooseAggregatePaginate);
-export const User = mongoose.Model('User', userSchema);
+export const User = mongoose.model('User', userSchema);

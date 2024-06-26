@@ -149,8 +149,8 @@ const sendMail = async function (mailType, email, fullName, OTP) {
                       <tr>
                         <td style="font-size: 14px; line-height: 170%; font-weight: 400; color: #000000; letter-spacing: 0.01em;">
                           Best regards, <br>
-                          <img style='width:90px'src=https://res.cloudinary.com/dqufodszt/image/upload/v1716363215/sharelerner/Main_1_u89enm.png
-   
+                          <img style='width:90px'src='https://res.cloudinary.com/dqufodszt/image/upload/v1716363215/sharelerner/Main_1_u89enm.png
+'>   
                         </td>
                       </tr>
                     </tbody>
