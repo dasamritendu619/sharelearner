@@ -1,6 +1,19 @@
-import { Resend } from 'resend';
+import nodemailer from "nodemailer";
+// import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// const resend = new Resend(process.env.RESEND_API_KEY);
+
+
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  host: "smtp.gmail.com",
+  port: 587,
+  auth: {
+    user: process.env.GMAIL_APP_USER,
+    pass: process.env.GMAIL_APP_PASSWORD,
+  },
+});
+
 
 const sendMail = async function (mailType, email, fullName, OTP) {
   let subject, html;
@@ -83,7 +96,7 @@ const sendMail = async function (mailType, email, fullName, OTP) {
         <td valign="top" align="center">
           <table class="container" width="600" cellspacing="0" cellpadding="0" border="0">
             <tbody>
-<img  style='width:90px'src='https://res.cloudinary.com/dqufodszt/image/upload/v1716363215/sharelerner/Main_1_u89enm.png'</img>
+<img  style='width:90px; text-align: center; border-radius: 50%;'src='https://res.cloudinary.com/dqufodszt/image/upload/v1716363215/sharelerner/Main_1_u89enm.png' >
               <tr>
                 <td style="padding:8px 0 30px 0; text-align: center; font-size: 14px; color: #4C83EE;">
                   SHARE LEARNER
@@ -149,7 +162,7 @@ const sendMail = async function (mailType, email, fullName, OTP) {
                       <tr>
                         <td style="font-size: 14px; line-height: 170%; font-weight: 400; color: #000000; letter-spacing: 0.01em;">
                           Best regards, <br>
-                          <img style='width:90px'src='https://res.cloudinary.com/dqufodszt/image/upload/v1716363215/sharelerner/Main_1_u89enm.png
+                          <img  style='width:90px; text-align: center; border-radius: 50%;' src='https://res.cloudinary.com/dqufodszt/image/upload/v1716363215/sharelerner/Main_1_u89enm.png
 '>   
                         </td>
                       </tr>
@@ -264,7 +277,7 @@ const sendMail = async function (mailType, email, fullName, OTP) {
         <td valign="top" align="center">
           <table class="container" width="600" cellspacing="0" cellpadding="0" border="0">
             <tbody>
-<img  style='width:90px'src='https://res.cloudinary.com/dqufodszt/image/upload/v1716363215/sharelerner/Main_1_u89enm.png'</img>
+<img  style='width:90px; text-align: center; border-radius: 50%;' src='https://res.cloudinary.com/dqufodszt/image/upload/v1716363215/sharelerner/Main_1_u89enm.png' >
               <tr>
                 <td style="padding:8px 0 30px 0; text-align: center; font-size: 14px; color: #4C83EE;">
                   SHARE LEARNER
@@ -326,8 +339,8 @@ If you are not request to reset your paasword, please ignore this mail.
                       <tr>
                         <td style="font-size: 14px; line-height: 170%; font-weight: 400; color: #000000; letter-spacing: 0.01em;">
                           Best regards, <br>
-                          <img style='width:90px'src=https://res.cloudinary.com/dqufodszt/image/upload/v1716363215/sharelerner/Main_1_u89enm.png
-   
+                          <img  style='width:90px; text-align: center; border-radius: 50%;' src='https://res.cloudinary.com/dqufodszt/image/upload/v1716363215/sharelerner/Main_1_u89enm.png'
+>   
                         </td>
                       </tr>
                     </tbody>
@@ -441,7 +454,7 @@ If you are not request to reset your paasword, please ignore this mail.
         <td valign="top" align="center">
           <table class="container" width="600" cellspacing="0" cellpadding="0" border="0">
             <tbody>
-<img  style='width:90px'src='https://res.cloudinary.com/dqufodszt/image/upload/v1716363215/sharelerner/Main_1_u89enm.png'</img>
+<img  style='width:90px; text-align: center; border-radius: 50%;' src='https://res.cloudinary.com/dqufodszt/image/upload/v1716363215/sharelerner/Main_1_u89enm.png' >
               <tr>
                 <td style="padding:8px 0 30px 0; text-align: center; font-size: 14px; color: #4C83EE;">
                   SHARE LEARNER
@@ -500,8 +513,8 @@ If you are not request to reset your paasword, please ignore this mail.
                       <tr>
                         <td style="font-size: 14px; line-height: 170%; font-weight: 400; color: #000000; letter-spacing: 0.01em;">
                           Best regards, <br>
-                          <img style='width:90px'src=https://res.cloudinary.com/dqufodszt/image/upload/v1716363215/sharelerner/Main_1_u89enm.png
-   
+                          <img  style='width:90px; text-align: center; border-radius: 50%;' src='https://res.cloudinary.com/dqufodszt/image/upload/v1716363215/sharelerner/Main_1_u89enm.png'
+>   
                         </td>
                       </tr>
                     </tbody>
@@ -536,18 +549,39 @@ If you are not request to reset your paasword, please ignore this mail.
       break;
   }
 
-  const { data, error } = await resend.emails.send({
-    from: 'sharelearner <onboarding@resend.dev>',
-    to: [email],
+  // const { data, error } = await resend.emails.send({
+  //   from: 'sharelearner <onboarding@resend.dev>',
+  //   to: [email],
+  //   subject: subject,
+  //   html: html,
+  // });
+
+  // if (error) {
+  //   console.log("error in sending Email",error);
+  //   return false;
+  // }
+
+  // return true;
+
+    
+  const mailOptions = {
+    from: {
+      name: "sharelearner",
+      address: process.env.GMAIL_APP_USER
+    },
+    to: email,
     subject: subject,
-    html: html,
-  });
+    html: html,  
+  };
 
-  if (error) {
-    console.log("error in sending Email",error);
-    return false;
-  }
-
-  return true;
+  transporter.sendMail(mailOptions,(err,info)=>{
+    if (err) {
+      console.log("error in sending Email",err);
+      return false;
+    } else {
+      return true;
+    }
+  })
 };
+
 export { sendMail }
