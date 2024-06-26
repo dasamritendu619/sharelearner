@@ -1,5 +1,8 @@
 import mongoose from "mongoose";
 import mongooseAggregatePaginate from "mongoose-aggregate-paginate-v2";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+
 
 const userSchema = new mongoose.Schema({
     fullName: {
