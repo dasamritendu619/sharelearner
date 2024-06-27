@@ -17,6 +17,13 @@ const replySchema = new mongoose.Schema({
         ref: 'Comment',
         required: true
     },
+    post: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Post',
+        required: true
+    },
+},{
+    timestamps: true
 });
 
 replySchema.plugin(mongooseAggregatePaginate);

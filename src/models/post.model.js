@@ -6,9 +6,12 @@ const postSchema = new mongoose.Schema({
         type: String,
         text: "index"
     },
+    content:{
+        type: String
+    },
     type: {
         type: String,
-        enum: ["photo", "video", "pdf", "blog", "link"],
+        enum: ["photo", "video", "pdf", "blog"],
         default: "photo"
     },
     views: {
