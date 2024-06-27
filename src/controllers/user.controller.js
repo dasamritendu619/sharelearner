@@ -384,7 +384,7 @@ const verifyResetPassword = asyncHandler(async (req, res) => {
 });
 
 
-const sendDpdateEmailrequestEmail = asyncHandler(async (req, res) => {
+const sendEmailForUpdateEmailRequest= asyncHandler(async (req, res) => {
     const { email } = req.body;
     if (!email) {
         throw new ApiError(400, "Email is required");
@@ -405,10 +405,42 @@ const sendDpdateEmailrequestEmail = asyncHandler(async (req, res) => {
     if (!updatedUser) {
         throw new ApiError(500, "Something went wrong while updating user");
     }
-    await sendMail("change_email", email, user.fullName, otp);
+    await sendMail("changeEmail", email, user.fullName, otp);
     return res
         .status(200)
         .json(new ApiResponce(200, {}, "OTP sent to your new email"));
+});
+
+const verifyChangeEmail = asyncHandler(async (req, res) => {
+    const { otp, email } = req.body;
+    if (!otp || !email) {
+        throw new ApiError(400, "All fields are required");
+    }
+    const user = await User.findOne({ emailVerificationOTP: otp, changedEmail: email,email: req.user?.email});
+    if (!user) {
+        throw new ApiError(404, "Invalid OTP");
+    }
+    if (user.emailVerificationExpires < Date.now()) {
+        throw new ApiError(400, "OTP expired");
+    }
+    
+    const updatedUser = await User.findByIdAndUpdate(
+        user._id,
+        {
+            email: email,
+            $unset: {
+                emailVerificationOTP: "",
+                emailVerificationExpires: "",
+                changedEmail: ""
+            }
+        }, { new: true }
+    );
+    if (!updatedUser) {
+        throw new ApiError(500, "Something went wrong while updating user");
+    }
+    return res
+        .status(200)
+        .json(new ApiResponce(200, {}, "Email changed successfully"));
 });
 
 export {
@@ -421,5 +453,6 @@ export {
     changePassword,
     sendForgotPasswordByEmail,
     verifyResetPassword,
-    sendDpdateEmailrequestEmail,
+    sendEmailForUpdateEmailRequest,
+    verifyChangeEmail,
 }
