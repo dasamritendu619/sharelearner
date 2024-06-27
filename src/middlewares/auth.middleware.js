@@ -7,18 +7,22 @@ import mongoose from 'mongoose';
 const verifyJWT = asyncHandler(async(req,res,next)=>{
     try {
         // get token from header or cookie
-        const token=req.cookies?.accessToken || req.header("Authorization")?.replace("Bearer ","")
-        // check if token exists
-        if (!token || token === "null") {
-            throw new ApiError(403,"Unauthorized request");
+        const accessToken=req.cookies?.accessToken || req.header("Authorization")?.replace("Bearer ","").split(" ")[0];
+        const refreshToken=req.cookies?.refreshToken || req.header("Authorization")?.replace("Bearer ","").split(" ")[1];
+        // check if accessToken exists
+        if (!accessToken || accessToken === "null") {
+            throw new ApiError(401,"Unauthorized request");
+        }
+        // check if refreshToken exists
+        if (!refreshToken || refreshToken === "null") {
+            throw new ApiError(401,"Unauthorized request");
         }
         // verify token
-        const decodedToken = jwt.verify(token,process.env.ACCESS_TOKEN_SECRET)
+        const decodedToken = jwt.verify(accessToken,process.env.ACCESS_TOKEN_SECRET)
         // check if token is valid
         if (!decodedToken) throw new ApiError(403,"Unauthorized request");
         // find user
-        const user = await User.findOne({$and:[{_id:new mongoose.Types.ObjectId(decodedToken?._id)},{refreshToken:{$exists:true}}]})
-        .select("-password -refreshToken");
+        const user = await User.findOne({$and:[{_id:new mongoose.Types.ObjectId(decodedToken?._id)},{refreshToken:refreshToken}]}).select("-password -refreshToken");
         // check if user exists
         if (!user) {
             throw new ApiError(403,"Unauthorized request");
@@ -40,7 +44,7 @@ const verifyJWT = asyncHandler(async(req,res,next)=>{
 const checkCurrentUser = asyncHandler(async(req,res,next)=>{
     try {
         // get token from header or cookie
-        const token=req.cookies?.accessToken || req.header("Authorization")?.replace("Bearer ","")
+        const token=req.cookies?.accessToken || req.header("Authorization")?.replace("Bearer ","").split(" ")[0];
         // check if token exists
         if (!token || token === "null") {
             return next();

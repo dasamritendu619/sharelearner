@@ -279,7 +279,137 @@ const getCurrentUser = asyncHandler(async (req, res) => {
         .json(new ApiResponce(200, req.user, "User found"));
 })
 
-const refreshAccessToken = asyncHandler(async (req, res) => {});
+const refreshAccessToken = asyncHandler(async (req, res) => {
+    const refreshToken=req.cookies?.refreshToken || req.header("Authorization")?.replace("Bearer ","").split(" ")[1];
+    if (!refreshToken) {
+        throw new ApiError(401, "Unauthorized");
+    }
+    const decodedToken = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+    if (!decodedToken) {
+        throw new ApiError(403, "Unauthorized request");
+    }
+    const user=await User.findOne({$and:[{_id:new mongoose.Types.ObjectId(decodedToken?._id)},{refreshToken:refreshToken}]}).select("-password -refreshToken");
+    // check if user exists
+    if (!user) {
+        throw new ApiError(403, "Unauthorized request");
+    }
+    const accessToken = user.generateAccessToken();
+    const options = {
+        httpOnly: true,
+        secure: true,
+        sameSite: "None",
+    }
+    return res
+        .status(200)
+        .cookie("accessToken", accessToken, { ...options, maxAge: 86400000 })
+        .json(new ApiResponce(200, { accessToken }, "Token refreshed successfully"));
+});
+
+const changePassword = asyncHandler(async (req, res) => {
+    const { oldPassword, newPassword } = req.body;
+    if (!oldPassword || !newPassword) {
+        throw new ApiError(400, "All fields are required");
+    }
+    if(oldPassword===newPassword){
+        throw new ApiError(400, "Old password and new password cannot be same");
+    }
+    const passwordError = isStrongPassword(newPassword);
+    if (passwordError !== true) {
+        throw new ApiError(400, passwordError);
+    }
+    const user = await User.findById(req.user._id);
+    const isPasswordMatch = await user.isPasswordMatch(oldPassword);
+    if (!isPasswordMatch) {
+        throw new ApiError(400, "Invalid password");
+    }
+    user.password = newPassword;
+    const savedUser=await user.save();
+    if (!savedUser) {
+        throw new ApiError(500, "Something went wrong while changing password");
+    }
+    return res
+        .status(200)
+        .json(new ApiResponce(200, {}, "Password changed successfully"));
+});
+const sendForgotPasswordByEmail = asyncHandler(async (req, res) => {
+    const { email } = req.body;
+    if (!email) {
+        throw new ApiError(400, "Email is required");
+    }
+    const user=await User.findOne({email});
+    if (!user) {
+        throw new ApiError(404, "User not found");
+    }
+    const otp = generateOTP();
+    user.resetPasswordOTP = otp;
+    user.resetPasswordExpires = Date.now() + 10 * 60 * 1000;
+    const updatedUser = await user.save();
+    if (!updatedUser) {
+        throw new ApiError(500, "Something went wrong while updating user");
+    }
+    await sendMail("reset_password", user.email, user.fullName, otp);
+    return res
+        .status(200)
+        .json(new ApiResponce(200, {}, "OTP sent to your email"));
+
+});
+
+const verifyResetPassword = asyncHandler(async (req, res) => {
+    const { otp, email, newPassword } = req.body;
+    if (!otp || !email || !newPassword) {
+        throw new ApiError(400, "All fields are required");
+    }
+    const passwordError = isStrongPassword(newPassword);
+    if (passwordError !== true) {
+        throw new ApiError(400, passwordError);
+    }
+    const user = await User.findOne({ email, resetPasswordOTP: otp });
+    if (!user) {
+        throw new ApiError(404, "Invalid OTP");
+    }
+    if (user.resetPasswordExpires < Date.now()) {
+        throw new ApiError(400, "OTP expired");
+    }
+    user.password = newPassword;
+    user.resetPasswordOTP = undefined;
+    user.resetPasswordExpires = undefined;
+    const updatedUser = await user.save();
+    if (!updatedUser) {
+        throw new ApiError(500, "Something went wrong while updating user");
+    }
+    return res
+        .status(200)
+        .json(new ApiResponce(200, {}, "Password reset successfully"));
+
+});
+
+
+const sendDpdateEmailrequestEmail = asyncHandler(async (req, res) => {
+    const { email } = req.body;
+    if (!email) {
+        throw new ApiError(400, "Email is required");
+    }
+    const user=await User.findById(req.user._id);
+    if (!user) {
+        throw new ApiError(404, "User not found");
+    }
+    const existed=await User.findOne({email});
+    if (existed) {
+        throw new ApiError(400, "User with Same Email already exists");
+    }
+    const otp = generateOTP();
+    user.emailVerificationOTP = otp;
+    user.emailVerificationExpires = Date.now() + 10 * 60 * 1000;
+    user.changedEmail = email;
+    const updatedUser = await user.save();
+    if (!updatedUser) {
+        throw new ApiError(500, "Something went wrong while updating user");
+    }
+    await sendMail("change_email", email, user.fullName, otp);
+    return res
+        .status(200)
+        .json(new ApiResponce(200, {}, "OTP sent to your new email"));
+});
 
 export {
     registerUser,
@@ -287,4 +417,9 @@ export {
     loginUser,
     logoutUser,
     getCurrentUser,
+    refreshAccessToken,
+    changePassword,
+    sendForgotPasswordByEmail,
+    verifyResetPassword,
+    sendDpdateEmailrequestEmail,
 }
