@@ -704,7 +704,7 @@ If you are not request to reset your paasword, please ignore this mail.
         <td valign="top" align="center">
           <table class="container" width="600" cellspacing="0" cellpadding="0" border="0">
             <tbody>
-<img  style='width:90px'src='https://res.cloudinary.com/dqufodszt/image/upload/v1716363215/sharelerner/Main_1_u89enm.png'</img>
+<img style='width:90px; text-align: center; border-radius: 50%;' src='https://res.cloudinary.com/dqufodszt/image/upload/v1716363215/sharelerner/Main_1_u89enm.png'>
               <tr>
                 <td style="padding:8px 0 30px 0; text-align: center; font-size: 14px; color: #4C83EE;">
                   SHARE LEARNER
@@ -763,7 +763,7 @@ If you are not request to reset your email, please ignore this mail.
                       <tr>
                         <td style="font-size: 14px; line-height: 170%; font-weight: 400; color: #000000; letter-spacing: 0.01em;">
                           Best regards, <br>
-                          <img style='width:90px'src=https://res.cloudinary.com/dqufodszt/image/upload/v1716363215/sharelerner/Main_1_u89enm.png
+                          <img style='width:90px; text-align: center; border-radius: 50%;' src='https://res.cloudinary.com/dqufodszt/image/upload/v1716363215/sharelerner/Main_1_u89enm.png'>
    
                         </td>
                       </tr>
