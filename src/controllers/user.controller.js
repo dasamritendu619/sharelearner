@@ -4,7 +4,8 @@ import { User } from "../models/user.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponce } from "../utils/ApiResponse.js";
 import { sendMail } from "../utils/resend.js";
-
+import { DEFAULT_AVATAR,DEFAULT_COVER_PHOTO} from "../constants.js" 
+import {deleteFromCloudinary} from "../utils/cloudinary.js";
 
 function isStrongPassword(password) {
     // Check if password length is at least 8 characters
@@ -331,6 +332,8 @@ const changePassword = asyncHandler(async (req, res) => {
         .status(200)
         .json(new ApiResponce(200, {}, "Password changed successfully"));
 });
+
+
 const sendForgotPasswordByEmail = asyncHandler(async (req, res) => {
     const { email } = req.body;
     if (!email) {
@@ -443,6 +446,124 @@ const verifyChangeEmail = asyncHandler(async (req, res) => {
         .json(new ApiResponce(200, {}, "Email changed successfully"));
 });
 
+const updateUserDetails=asyncHandler(async (req,res)=>{
+    const {fullName,dob,gender,education,about,address,links,interest}=req.body;
+    if (!fullName && !dob && !gender && !education && !about && !address && !links && !interest) {
+        throw new ApiError(400, "Atleast one field is required");
+    }
+    
+    const user=await User.findById(req.user._id);
+    if (!user) {
+        throw new ApiError(404, "User not found");
+    }
+
+    user.fullName=fullName || user.fullName;
+    user.dob=dob || user.dob;
+    user.gender=gender || user.gender;
+    user.education=education || user.education;
+    user.about=about || user.about;
+    user.address=address || user.address;
+    user.links=links || user.links;
+    user.interest=interest || user.interest;
+
+    const updatedUser = await user.save();
+    if (!updatedUser) {
+        throw new ApiError(500, "Something went wrong while updating user");
+    }
+    return res
+        .status(200)
+        .json(new ApiResponce(200, updatedUser, "User details updated successfully"));
+});
+
+const updateAvatar=asyncHandler(async (req,res)=>{
+    const {avatarUrl}=req.body;
+    if (!avatarUrl) {
+        throw new ApiError(400, "Avatar URL is required");
+    }
+    const user=await User.findById(req.user._id);
+    if (!user) {
+        throw new ApiError(404, "User not found");
+    }
+    // img.split("upload/")[1].split(".")[0]
+    if(user.avatar!==DEFAULT_AVATAR){
+        const deletedImage=await deleteFromCloudinary(user.avatar.split("upload/")[1].split(".")[0]);
+        if (!deletedImage) {
+            throw new ApiError(500, "Something went wrong while deleting image");
+        }
+    }
+    user.avatar=avatarUrl;
+    const updatedUser = await user.save();
+    if (!updatedUser) {
+        throw new ApiError(500, "Something went wrong while updating user");
+    }
+
+    return res
+        .status(200)
+        .json(new ApiResponce(200, {}, "Avatar updated successfully"));
+});
+
+const updateCoverPhoto=asyncHandler(async (req,res)=>{
+    const {coverPhotoUrl}=req.body;
+    if (!coverPhotoUrl) {
+        throw new ApiError(400, "Cover Photo URL is required");
+    }
+    const user=await User.findById(req.user._id);
+
+    if (!user) {
+        throw new ApiError(404, "User not found");
+    }
+
+    if(user.coverPhoto!==DEFAULT_COVER_PHOTO){
+        const deletedImage=await deleteFromCloudinary(user.coverPhoto.split("upload/")[1].split(".")[0]);
+        if (!deletedImage) {
+            throw new ApiError(500, "Something went wrong while deleting image");
+        }
+    }
+    user.coverPhoto=coverPhotoUrl;
+    const updatedUser = await user.save();
+    if (!updatedUser) {
+        throw new ApiError(500, "Something went wrong while updating user");
+    }
+    return res
+        .status(200)
+        .json(new ApiResponce(200, {}, "Cover photo updated successfully"));
+
+});
+
+// const deleteUser=asyncHandler(async (req,res)=>{
+//     const {password}  = req.query;
+//     if (!password) {
+//         throw new ApiError(400, "Password is required");
+//     }
+//     const user=await User.findById(req.user._id);
+//     if (!user) {
+//         throw new ApiError(404, "User not found");
+//     }
+//     const isPasswordMatch = await user.isPasswordMatch(password);
+//     if (!isPasswordMatch) {
+//         throw new ApiError(400, "Invalid password");
+//     }
+//     const deletedUser=await User.findByIdAndDelete(user._id);
+//     if (!deletedUser) {
+//         throw new ApiError(500, "Something went wrong while deleting user");
+//     }
+    
+// });
+
+const checkUserNameAvialability=asyncHandler(async (req,res)=>{
+    const {username}  = req.query;
+    if (!username) {
+        throw new ApiError(400, "Username is required");
+    }
+    const user=await User.findOne({username});
+    if (user) {
+        throw new ApiError(400, "Username already taken");
+    }
+    return res
+        .status(200)
+        .json(new ApiResponce(200, {}, "Username available"));
+});
+
 export {
     registerUser,
     verifyUser,
@@ -455,4 +576,9 @@ export {
     verifyResetPassword,
     sendEmailForUpdateEmailRequest,
     verifyChangeEmail,
+    updateUserDetails,
+    updateAvatar,
+    updateCoverPhoto,
+    checkUserNameAvialability,
+
 }
