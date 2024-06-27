@@ -214,10 +214,6 @@ const loginUser = asyncHandler(async (req, res) => {
     if (!user) {
         throw new ApiError(404, "User not found");
     }
-    // check if user is verified
-    if (!user.isVerified) {
-        throw new ApiError(400, "User is not verified");
-    }
     // check if password is correct
     const isPasswordMatch = await user.isPasswordMatch(password);
     if (!isPasswordMatch) {
@@ -282,6 +278,8 @@ const getCurrentUser = asyncHandler(async (req, res) => {
         .status(200)
         .json(new ApiResponce(200, req.user, "User found"));
 })
+
+const refreshAccessToken = asyncHandler(async (req, res) => {});
 
 export {
     registerUser,
