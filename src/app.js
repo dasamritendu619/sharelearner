@@ -23,6 +23,7 @@ import likesRoute from "./routes/likes.route.js";
 import followerRoute from "./routes/followers.route.js";
 import commentRoute from "./routes/comment.route.js";
 import replyRoute from "./routes/reply.route.js";
+import savedRoute from "./routes/saved.route.js";
 
 // use routes
 app.use("/api/v1/user",userRoute);
@@ -32,6 +33,7 @@ app.use("/api/v1/likes",likesRoute);
 app.use("/api/v1/followers",followerRoute);
 app.use("/api/v1/comment",commentRoute);
 app.use("/api/v1/reply",replyRoute);
+app.use("/api/v1/saved",savedRoute);
 
 app.use(errorHandler);
 export default app;
