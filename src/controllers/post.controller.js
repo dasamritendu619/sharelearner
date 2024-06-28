@@ -10,7 +10,7 @@ import { asyncHandler } from '../utils/asyncHandeler.js';
 import {uploadOnCloudinary} from "../utils/cloudinary.js"
 
 
-export const createPost = asyncHandler(async (req, res) => {
+const createPost = asyncHandler(async (req, res) => {
     const { title="",content="", type="blog", visibility="public" } = req.body;
     let post;
         switch(type){
@@ -205,5 +205,4 @@ export {
     forkPost,
     updatePost,
     deletePost,
-
 }
