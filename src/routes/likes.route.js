@@ -3,15 +3,16 @@ import {
     toggleLikeComment,
     toggleLikeReply,
     toggleLikePost,
+    getProfilesWhoLikePost,
 } from "../controllers/likes.controller.js";
-import {verifyJWT} from "../middlewares/auth.middleware.js";
+import {verifyJWT,checkCurrentUser} from "../middlewares/auth.middleware.js";
 
 const router = Router();
 
-router.use(verifyJWT);
+router.route("/toggle-post/:postId").post(verifyJWT,toggleLikePost);
+router.route("/toggle-comment/:commentId").post(verifyJWT,toggleLikeComment);
+router.route("/toggle-reply/:replyId").post(verifyJWT,toggleLikeReply);
+router.route("/profiles/:postId").get(checkCurrentUser,getProfilesWhoLikePost);
 
-router.route("/post/:postId").post(toggleLikePost);
-router.route("/comment/:commentId").post(toggleLikeComment);
-router.route("/reply/:replyId").post(toggleLikeReply);
 
 export default router;

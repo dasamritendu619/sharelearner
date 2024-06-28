@@ -23,7 +23,7 @@ const toggleLikePost = asyncHandler(async (req, res) => {
         .status(200)
         .json(new ApiResponce(200,{}, "Post unliked successfully"));
     }
-    const like = Likes.create({post:post._id, 
+    const like = await Likes.create({post:post._id, 
         likedBy:new mongoose.Types.ObjectId(req.user._id)}
     );
     if(!like){
@@ -52,7 +52,7 @@ const toggleLikeComment = asyncHandler(async (req, res) => {
         .status(200)
         .json(new ApiResponce(200,{}, "Comment unliked successfully"));
     }
-    const like = Likes.create({comment:comment._id, 
+    const like = await Likes.create({comment:comment._id, 
         likedBy:new mongoose.Types.ObjectId(req.user._id)}
     );
     if(!like){
@@ -80,7 +80,7 @@ const toggleLikeReply = asyncHandler(async (req, res) => {
         .status(200)
         .json(new ApiResponce(200,{}, "Reply unliked successfully"));
     }
-    const like = Likes.create({reply:reply._id,
+    const like = await Likes.create({reply:reply._id,
         likedBy:new mongoose.Types.ObjectId(req.user._id)}
     );
     if(!like){
@@ -92,8 +92,107 @@ const toggleLikeReply = asyncHandler(async (req, res) => {
 });
 
 
+const getProfilesWhoLikePost= asyncHandler(async (req, res) => {
+    const { postId } = req.params;
+    const {page=1, limit=20} = req.query;
+    if(!postId){
+        throw new ApiError(400, "Post id is required");
+    }
+    const post = await Post.findById(postId);
+    if(!post){
+        throw new ApiError(404, "Post not found");
+    }
+
+    let isFollowedByMe = false;
+    if(req.user){
+        isFollowedByMe = {
+            $cond:{
+                if:{
+                    $in:[new mongoose.Types.ObjectId(req.user?._id),"$followers.followedBy"]
+                },
+                then:true,
+                else:false
+            }
+        }
+    }
+
+    const aggregate = Likes.aggregate([
+        {
+            $match: {
+                post: post._id
+            }
+        },
+        {
+            $sort:{
+                createdAt:-1
+            }
+        },
+        {
+            $lookup: {
+                from: "users",
+                localField: "likedBy",
+                foreignField: "_id",
+                as: "likedBy",
+                pipeline:[
+                    {
+                        $lookup:{
+                            from : "followers",
+                            localField: "_id",
+                            foreignField: "profile",
+                            as : "followers"
+                        }
+                    },
+                    {
+                        $addFields:{
+                            isFollowedByMe:isFollowedByMe,
+                            followersCount:{
+                                $size:"$followers"
+                            }
+                        
+                        }
+                    },
+                    {
+                        $project:{
+                            _id:1,
+                            username:1,
+                            fullName:1,
+                            avatar:1,
+                            isFollowedByMe:1,
+                            followersCount:1
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            $addFields:{
+                likedBy:{
+                    $first:"$likedBy"                }
+            }
+        },
+        {
+            $replaceRoot:{
+                newRoot:"$likedBy"
+            }
+        }
+    ]);
+
+    const likes = await Likes.aggregatePaginate(aggregate, {
+        page:parseInt(page),
+        limit:parseInt(limit)
+    });
+    if(!likes){
+        throw new ApiError(500, "Failed to fetch post likes");
+    }
+    return res
+    .status(200)
+    .json(new ApiResponce(200,likes, "Profile fetched successfully"));
+
+});
+
 export {
     toggleLikePost,
     toggleLikeComment,
-    toggleLikeReply
+    toggleLikeReply,
+    getProfilesWhoLikePost,
 }
