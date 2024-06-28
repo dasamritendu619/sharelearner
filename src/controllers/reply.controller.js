@@ -78,8 +78,94 @@ const deleteReply = asyncHandler(async (req, res) => {
     .json(new ApiResponce(200, {}, "Reply deleted successfully"));
 });
 
+const getAllReplies = asyncHandler(async (req, res) => {
+    const { commentId } = req.params;
+    const { page=1, limit=20 } = req.query;
+    if(!commentId){
+        throw new ApiError(400, "Comment id is required");
+    }
+    const comment = await Comment.findById(commentId);
+    if(!comment){
+        throw new ApiError(404, "Comment not found");
+    }
+    const aggregate = Reply.aggregate([
+        {
+            $match: {
+                comment: comment._id
+            }
+        },
+        {
+            $sort: {
+                createdAt: -1
+            }
+        },
+        {
+            $lookup: {
+                from: 'users',
+                localField: 'repliedBy',
+                foreignField: '_id',
+                as: 'repliedBy',
+                pipeline: [
+                    {
+                        $project: {
+                            _id: 1,
+                            fullName: 1,
+                            username: 1,
+                            avatar: 1
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            $lookup:{
+                from: 'likes',
+                localField: '_id',
+                foreignField: 'reply',
+                as: 'likes'
+            }
+        },
+        {
+            $addFields: {
+                likesCount: { $size: '$likes' },
+                isLikedByMe: {
+                    $cond: {
+                        if: {
+                            $in: [new mongoose.Types.ObjectId(req.user._id), '$likes.likedBy']
+                        },
+                        then: true,
+                        else: false
+                    }
+                
+                },
+                repliedBy: { $arrayElemAt: ['$repliedBy', 0] }
+            }
+        },
+        {
+            $project: {
+                likes: 0
+            }
+        }
+    ]); 
+    const options = {
+        page: parseInt(page),
+        limit: parseInt(limit)
+    };
+    const replies = await Reply.aggregatePaginate(aggregate, options);
+    if(!replies){
+        throw new ApiError(500, "Failed to fetch replies");
+    }
+    return res
+    .status(200)
+    .json(new ApiResponce(200, replies, "Replies fetched successfully"));
+    
+});
+
+
+
 export { 
     createReply,
     updateReply,
     deleteReply,
+    getAllReplies,
 };

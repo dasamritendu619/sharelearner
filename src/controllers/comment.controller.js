@@ -147,7 +147,8 @@ const getallComments = asyncHandler(async (req, res) => {
                         then: true,
                         else: false
                     }
-                }
+                },
+                commentedBy: { $arrayElemAt: ['$commentedBy', 0] }
             }
         },
         {
