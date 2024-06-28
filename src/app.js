@@ -21,6 +21,7 @@ import healthCheckRoute from "./routes/healthCheck.route.js";
 import postRoute from "./routes/post.route.js";
 import likesRoute from "./routes/likes.route.js";
 import followerRoute from "./routes/followers.route.js";
+import commentRoute from "./routes/comment.route.js";
 
 // use routes
 app.use("/api/v1/user",userRoute);
@@ -28,6 +29,7 @@ app.use("/api/v1/healthCheck",healthCheckRoute);
 app.use("/api/v1/post",postRoute);
 app.use("/api/v1/likes",likesRoute);
 app.use("/api/v1/followers",followerRoute);
+app.use("/api/v1/comment",commentRoute);
 
 
 app.use(errorHandler);
