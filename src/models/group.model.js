@@ -17,7 +17,14 @@ const groupSchema = new mongoose.Schema({
         type: String,
         trim: true
     },
-
+    groupIcon:{
+        type: String,
+        trim: true
+    },
+    groupBanner:{
+        type: String,
+        trim: true
+    }
 },
     {
         timestamps: true
